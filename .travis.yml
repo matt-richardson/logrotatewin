@@ -2,7 +2,7 @@ language: csharp
 solution: logrotate.sln
 
 install:
-  - nuget restore logrtate.sln
+  - nuget restore logrotate.sln
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release logrotate.sln
