@@ -22,7 +22,7 @@ using System.Text;
 
 namespace logrotate
 {
-    class logrotateconf
+    public class logrotateconf
     {
         #region Private variables
         private bool bcompress = true;

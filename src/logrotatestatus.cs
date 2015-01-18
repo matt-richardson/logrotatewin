@@ -26,7 +26,7 @@ namespace logrotate
     /// <summary>
     /// This class encapsulates the status file, handling updates, etc.
     /// </summary>
-    class logrotatestatus
+    public class logrotatestatus
     {
         private string sfile_path;
 

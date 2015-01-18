@@ -5,36 +5,36 @@ using System.Collections;
 
 namespace logrotate
 {
-    class ConfigParser
+    public class ConfigParser
 	{
 		public ConfigParser ()
 		{
 		}
 
-		public logrotateconf Parse (List<string> configFilePaths, bool isDebug)
+		public logrotateconf Parse (List<string> configFilePaths, bool isDebug, IFileSystem fileSystem)
 		{
 			var GlobalConfig = new logrotateconf ();
 
 			// now process the config files
 			foreach (string s in configFilePaths)
 			{
-				ProcessConfigPath(s, GlobalConfig, isDebug);
+				ProcessConfigPath(s, GlobalConfig, isDebug, fileSystem);
 			}
 
 			// if there was an include directive in the global settings, then we need to process that 
 			if (GlobalConfig.Include != "")
 			{
-				ProcessIncludeDirective(GlobalConfig, isDebug);
+				ProcessIncludeDirective(GlobalConfig, isDebug, fileSystem);
 			}
 
 			return GlobalConfig;
 		}
 
-		private static void ProcessConfigFile(string m_path_to_file, logrotateconf GlobalConfig, bool isDebug)
+		private static void ProcessConfigFile(string m_path_to_file, logrotateconf GlobalConfig, bool isDebug, IFileSystem fileSystem)
 		{
 			Logging.Log(Strings.ParseConfigFile+" " + m_path_to_file,Logging.LogType.Verbose);
 
-			StreamReader sr = new StreamReader(m_path_to_file);
+			StreamReader sr = fileSystem.OpenFileAsStreamReader(m_path_to_file);
 			bool bSawASection = false;
 			// read in lines until done
 			while (true)
@@ -179,21 +179,20 @@ namespace logrotate
 
 		}
 
-		private static void ProcessConfigPath(string m_path, logrotateconf GlobalConfig, bool isDebug)
+		private static void ProcessConfigPath(string m_path, logrotateconf GlobalConfig, bool isDebug, IFileSystem fileSystem)
 		{
 			// if this is pointed to a folder (most lilely), then process each file in it
-			if ((File.GetAttributes(m_path) & FileAttributes.Directory) == FileAttributes.Directory)
+			if ((fileSystem.GetAttributes(m_path) & FileAttributes.Directory) == FileAttributes.Directory)
 			{
-				DirectoryInfo di = new DirectoryInfo(m_path);
-				FileInfo[] fis = di.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-				foreach (FileInfo fi in fis)
+				var fileNames = fileSystem.GetFiles (m_path);
+				foreach (var file in fileNames)
 				{
-					ProcessConfigFile(fi.FullName, GlobalConfig, isDebug);
+					ProcessConfigFile(file, GlobalConfig, isDebug, fileSystem);
 				}
 			}
 			else
 			{
-				ProcessConfigFile(m_path, GlobalConfig, isDebug);
+				ProcessConfigFile(m_path, GlobalConfig, isDebug, fileSystem);
 			}
 
 		}
@@ -201,57 +200,55 @@ namespace logrotate
 		/// <summary>
 		/// Process the include directive if specfied
 		/// </summary>
-		private static void ProcessIncludeDirective(logrotateconf GlobalConfig, bool isDebug)
+		private static void ProcessIncludeDirective(logrotateconf GlobalConfig, bool isDebug, IFileSystem fileSystem)
 		{
-			if (Directory.Exists(GlobalConfig.Include))
+			if (fileSystem.DirectoryExists(GlobalConfig.Include))
 			{
 				// this is a folder, so get all files in the folder and process them
-				DirectoryInfo di = new DirectoryInfo(GlobalConfig.Include);
-				FileInfo[] m_fis = di.GetFiles();
+				var fileNames = fileSystem.GetFiles (GlobalConfig.Include);
 				// sort alphabetically
-				Array.Sort(m_fis, delegate(FileSystemInfo a, FileSystemInfo b)
+				Array.Sort(fileNames, delegate(string a, string b)
 					{
-						return ((new CaseInsensitiveComparer()).Compare(b.Name, a.Name));
+						return ((new CaseInsensitiveComparer()).Compare(b, a));
 					});
 				// make sure ext of file is not in the tabooext list
-				foreach (FileInfo m_fi in m_fis)
+				foreach (string fileName in fileNames)
 				{
 					bool bFound = false;
 					for (int i = 0; i < GlobalConfig.TabooList.Length; i++)
 					{
-						if (m_fi.Extension == GlobalConfig.TabooList[i])
+						if ((new FileInfo(fileName)).Extension == GlobalConfig.TabooList[i])
 						{
-							Logging.Log(Strings.Skipping+" " + m_fi.FullName + " - " + Strings.ExtInTaboo, Logging.LogType.Verbose);
+							Logging.Log(Strings.Skipping+" " + fileName + " - " + Strings.ExtInTaboo, Logging.LogType.Verbose);
 							bFound = true;
 							break;
 						}
 					}
 					if (!bFound)
 					{
-						Logging.Log(Strings.ProcessInclude+" " + m_fi.FullName, Logging.LogType.Verbose);
-						ProcessConfigFile(m_fi.FullName, GlobalConfig, isDebug);
+						Logging.Log(Strings.ProcessInclude+" " + fileName, Logging.LogType.Verbose);
+						ProcessConfigFile(fileName, GlobalConfig, isDebug, fileSystem);
 					}
 				}
 			}
 			else
 			{
 				// this (might be) a file, so attempt to process it
-				if (File.Exists(GlobalConfig.Include))
+				if (fileSystem.FileExists(GlobalConfig.Include))
 				{
 					Logging.Log(Strings.ProcessInclude+" "+ GlobalConfig.Include, Logging.LogType.Verbose);
-					ProcessConfigPath(GlobalConfig.Include, GlobalConfig, isDebug);
+					ProcessConfigPath(GlobalConfig.Include, GlobalConfig, isDebug, fileSystem);
 				}
 				else
 				{
 					// this could be a directory, so let's check for that also
-					if ((File.GetAttributes(GlobalConfig.Include) & FileAttributes.Directory) == FileAttributes.Directory)
+					if ((fileSystem.GetAttributes(GlobalConfig.Include) & FileAttributes.Directory) == FileAttributes.Directory)
 					{
-						DirectoryInfo di = new DirectoryInfo(GlobalConfig.Include);
-						FileInfo[] fis = di.GetFiles("*");
-						foreach (FileInfo fi in fis)
+						var fileNames = fileSystem.GetFiles (GlobalConfig.Include);
+						foreach (string fileName in fileNames)
 						{
 							Logging.Log(Strings.ProcessInclude + " " + GlobalConfig.Include, Logging.LogType.Verbose);
-							ProcessConfigPath(fi.FullName, GlobalConfig, isDebug);
+							ProcessConfigPath(fileName, GlobalConfig, isDebug, fileSystem);
 						}
 					}
 					else

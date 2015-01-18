@@ -56,6 +56,9 @@
       <DependentUpon>strings.es.resx</DependentUpon>
     </Compile>
     <Compile Include="ConfigParser.cs" />
+    <Compile Include="IFileSystem.cs" />
+    <Compile Include="Processor.cs" />
+    <Compile Include="CmdLineArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
