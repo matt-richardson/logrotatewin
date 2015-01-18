@@ -33,12 +33,17 @@ namespace logrotatewin.tests
 
 		public bool FileExists (string include)
 		{
-			throw new NotImplementedException ();
+			return true;
 		}
 
 		public string[] GetFiles (string m_path)
 		{
 			throw new NotImplementedException ();
+		}
+
+		public long GetFileSize (string logfilepath)
+		{
+			return 300000;
 		}
 	}
 

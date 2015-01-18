@@ -59,6 +59,8 @@
     <Compile Include="IFileSystem.cs" />
     <Compile Include="Processor.cs" />
     <Compile Include="CmdLineArgs.cs" />
+    <Compile Include="RotationValidator.cs" />
+    <Compile Include="IStatusRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

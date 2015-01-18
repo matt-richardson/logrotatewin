@@ -38,6 +38,8 @@
   <ItemGroup>
     <Compile Include="FakeFileSystem.cs" />
     <Compile Include="ConfigParserTests.cs" />
+    <Compile Include="RotationValidatorTests.cs" />
+    <Compile Include="FakeStatusRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -34,6 +34,8 @@ namespace logrotate
 		bool FileExists (string include);
 
 		string[] GetFiles (string m_path);
+
+		long GetFileSize (string logfilepath);
 	}
 
 	public class DefaultFileSystem : IFileSystem
@@ -66,6 +68,12 @@ namespace logrotate
 			for (var i = 0; i < fis.Length; i++)
 				files [i] = fis [i].FullName;
 			return files;
+		}
+
+		public long GetFileSize (string logfilepath)
+		{
+			FileInfo fi = new FileInfo(logfilepath);
+			return fi.Length;
 		}
 	}
 }

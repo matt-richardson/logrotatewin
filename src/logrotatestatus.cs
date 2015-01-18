@@ -27,11 +27,9 @@ namespace logrotate
     /// <summary>
     /// This class encapsulates the status file, handling updates, etc.
     /// </summary>
-    public class logrotatestatus
+	public class logrotatestatus : IStatusRepository
     {
         private string sfile_path;
-
-
 
         public logrotatestatus(string m_path)
         {

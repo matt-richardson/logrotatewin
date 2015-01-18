@@ -33,10 +33,13 @@ namespace logrotate
 		// this object provides management of the Status file
 		private logrotatestatus Status = null;
 
+		DefaultFileSystem fileSystem;
+
 		public Processor (CmdLineArgs cla)
 		{
 			this.cla = cla;
 			this.Status = new logrotatestatus(cla.AlternateStateFile);
+			this.fileSystem = new DefaultFileSystem ();
 		}
 
 		public void Process (logrotateconf GlobalConfig)
@@ -86,7 +89,8 @@ namespace logrotate
 				// if kvp.Key is a single file, then process
 				if ((File.Exists(kvp.Key) == true) || ((File.Exists(kvp.Key) == false) && (kvp.Key.Contains("?") == false) && (kvp.Key.Contains("*") == false)))
 				{
-					if (CheckForRotate(kvp.Key, kvp.Value))
+					var rotationValidator = new RotationValidator(kvp.Key, kvp.Value, cla, Status, fileSystem);
+					if (rotationValidator.IsRotationRequired())
 						m_rotatefis.Add(new FileInfo(kvp.Key));
 				}
 				else
@@ -100,7 +104,8 @@ namespace logrotate
 						foreach (FileInfo m_fi in fis)
 						{
 							Logging.Log(Strings.Processing + " " + m_fi.FullName, Logging.LogType.Verbose);
-							if (CheckForRotate(m_fi.FullName, kvp.Value))
+							var rotationValidator = new RotationValidator(m_fi.FullName, kvp.Value, cla, Status, fileSystem);
+							if (rotationValidator.IsRotationRequired())
 								m_rotatefis.Add(m_fi);
 						}
 					}
@@ -156,7 +161,8 @@ namespace logrotate
 							foreach (FileInfo m_fi in fis)
 							{
 								Logging.Log(Strings.Processing + " " + m_fi.FullName, Logging.LogType.Verbose);
-								if (CheckForRotate(m_fi.FullName, kvp.Value))
+								var rotationValidator = new RotationValidator(m_fi.FullName, kvp.Value, cla, Status, fileSystem);
+								if (rotationValidator.IsRotationRequired())
 									m_rotatefis.Add(m_fi);
 							}
 						}
@@ -342,119 +348,6 @@ namespace logrotate
 				PostRotate(lrc,fi.FullName);
 		}
 
-		/// <summary>
-		/// Check to see if the logfile specified is eligible for rotation
-		/// </summary>
-		/// <param name="logfilepath">Full path to the log file to check</param>
-		/// <param name="lrc">logrotationconf object</param>
-		/// <returns>True if need to rotate, False if not</returns>
-		private bool CheckForRotate(string logfilepath, logrotateconf lrc)
-		{
-
-			if (cla.Force)
-			{
-				Logging.Log(Strings.ForceOptionRotate, Logging.LogType.Verbose);
-				return true;
-			}
-
-			bool bDoRotate = false;
-			// first check if file exists.  if it doesn't error out unless we are set not to
-			if (File.Exists(logfilepath) == false)
-			{
-				if (lrc.MissingOK==false)
-				{
-					Logging.Log(logfilepath + " "+Strings.CouldNotBeFound,Logging.LogType.Error);
-					return false;
-				}
-			}
-
-			FileInfo fi = new FileInfo(logfilepath);
-
-			//if (logfilepath.Length == 0)
-			if (fi.Length == 0)
-			{
-				if (lrc.IfEmpty == false)
-				{
-					Logging.Log(Strings.LogFileEmpty+" - " + Strings.Skipping,Logging.LogType.Verbose);
-					return false;
-				}
-			}
-
-			// determine if we need to rotate the file.  this can be based on a number of criteria, including size, date, etc.
-			if (lrc.MinSize != 0)
-			{
-				if (fi.Length < lrc.MinSize)
-				{
-					Logging.Log(Strings.NoRotateNotGTEMinimumFileSize,Logging.LogType.Verbose);
-
-					return false;
-				}
-			}
-
-			if (lrc.Size != 0)
-			{
-				if (fi.Length >= lrc.Size)
-				{
-					Logging.Log(Strings.RotateBasedonFileSize,Logging.LogType.Verbose);
-
-					bDoRotate = true;
-
-				}
-			}
-			else
-			{
-				if ((lrc.Daily == false) && (lrc.Monthly == false) && (lrc.Yearly == false))
-				{
-					// this is a misconfiguration is we get here
-					Logging.Log(Strings.NoTimestampDirectives, Logging.LogType.Verbose);
-				}
-				else
-				{
-					// check last date of rotation
-					DateTime lastRotate = Status.GetRotationDate(logfilepath);
-					TimeSpan ts = DateTime.Now - lastRotate;
-					if (lrc.Daily)
-					{
-						// check to see if lastRotate is more than a day old
-						if (ts.TotalDays > 1)
-						{
-							bDoRotate = true;
-						}
-					}
-					if (lrc.Weekly)
-					{
-						// check if total # of days is greater than a week or if the current weekday is less than the weekday of the last rotation
-						if (ts.TotalDays > 7)
-						{
-							bDoRotate = true;
-						}
-						else if (DateTime.Now.DayOfWeek < lastRotate.DayOfWeek)
-						{
-							bDoRotate = true;
-						}
-					}
-					if (lrc.Monthly)
-					{
-						// check if the month is different
-						if ((lastRotate.Year != DateTime.Now.Year) || ((lastRotate.Year == DateTime.Now.Year) && (lastRotate.Month != DateTime.Now.Month)))
-						{
-							bDoRotate = true;
-						}
-					}
-					if (lrc.Yearly)
-					{
-						// check if the year is different
-						if (lastRotate.Year != DateTime.Now.Year)
-						{
-							bDoRotate = true;
-						}
-					}
-				}
-			}
-
-			return bDoRotate;
-
-		}
 
 		/// <summary>
 		/// Execute any postrotate commands.  The commands are written to a temporary script file, and then this script file is executed with c:\windows\cmd.
