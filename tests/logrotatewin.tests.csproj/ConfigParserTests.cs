@@ -5,10 +5,10 @@ using logrotate;
 namespace logrotatewin.tests
 {
 	[TestFixture]
-	public class Test
+	public class ConfigParserTests
 	{
 		[Test]
-		public void TestCase ()
+		public void Can_parse_weekly_config ()
 		{
 			var fileSystem = new FakeFileSystem (@"
 C:\chef\log\client.log {
