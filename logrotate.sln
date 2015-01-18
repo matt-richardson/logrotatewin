@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "logrotate", "src\logrotate.csproj", "{042774C6-AED5-442B-BB42-A3E7A5C7F08E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "logrotatewin.tests", "tests\logrotatewin.tests.csproj\logrotatewin.tests.csproj", "{B6DFA6C3-2DCB-480B-8B70-DA82932FC93D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "logrotatewin.tests", "tests\logrotatewin.tests\logrotatewin.tests.csproj", "{B6DFA6C3-2DCB-480B-8B70-DA82932FC93D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
