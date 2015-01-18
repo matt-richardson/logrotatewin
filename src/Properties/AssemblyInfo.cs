@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Logrotate")]
-[assembly: AssemblyCopyright("Copyright © 2013 Ken Salter")]
+[assembly: AssemblyCopyright("Copyright © 2013 Ken Salter. Additional work copyright © 2015 Matt Richardson.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
