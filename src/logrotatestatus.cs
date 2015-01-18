@@ -30,12 +30,7 @@ namespace logrotate
     {
         private string sfile_path;
 
-        private DateTime lastmod;
 
-        public logrotatestatus()
-        {
-            GetStatus_LastModDate();
-        }
 
         public logrotatestatus(string m_path)
         {
@@ -54,13 +49,6 @@ namespace logrotate
                 sw.WriteLine("logrotate state -- version 2");
                 sw.Close();
             }
-
-            GetStatus_LastModDate();
-        }
-
-        private void GetStatus_LastModDate()
-        {
-            lastmod = File.GetLastWriteTime(sfile_path);
         }
 
         public void SetRotationDate(string m_log_path)
