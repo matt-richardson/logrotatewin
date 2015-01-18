@@ -78,7 +78,7 @@ namespace logrotate
 			}
 			else
 			{
-				if ((lrc.Daily == false) && (lrc.Monthly == false) && (lrc.Yearly == false))
+				if ((lrc.Daily == false) && (lrc.Weekly == false) && (lrc.Monthly == false) && (lrc.Yearly == false))
 				{
 					// this is a misconfiguration is we get here
 					Logging.Log(Strings.NoTimestampDirectives, Logging.LogType.Verbose);
