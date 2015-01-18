@@ -74,9 +74,17 @@ namespace logrotate
 
         private int process_count = 0;
 
+		// this is a list of file paths and the associated Config section
+		private Dictionary<string, logrotateconf> filePathConfigSection = new Dictionary<string, logrotateconf>();
+
+
         #endregion
 
         #region Public properties
+
+		public Dictionary<string, logrotateconf> FilePathConfigSection {
+			get { return filePathConfigSection; }
+		}
 
         public int ProcessCount
         {
