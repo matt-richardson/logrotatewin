@@ -1,0 +1,5 @@
+﻿<Properties StartupItem="src/logrotate.csproj">
+  <DisabledProjects>
+    <String>logrotate.csproj</String>
+  </DisabledProjects>
+</Properties>
