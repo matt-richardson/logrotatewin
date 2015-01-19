@@ -1,6 +1,6 @@
 ## logrotatewin
 
-![alt text](https://travis-ci.org/matt-richardson/logrotatewin.svg?branch=master "foo")
+[![Build Status (Master Branch)](https://travis-ci.org/matt-richardson/logrotatewin.svg?branch=master)](https://travis-ci.org/matt-richardson/logrotatewin)
 
 A Windows implementation of the logrotate utility found in Linux platforms. The goal is to use the same command line parameters and files as the Linux version.
 
